@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   test:
@@ -13,11 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+
       - name: Install pop-cli
-        run: brew install r0gue-io/pop-cli/pop
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install r0gue-io/pop-cli/pop
 
       - name: Install dependencies
-        run: pop install
+        run: |
+          sudo $(which pop) install -y
+          rustup component add rust-src
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Build contract
         run: pop build
