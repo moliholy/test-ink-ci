@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   test:
@@ -13,11 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: install brew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
       - name: Install pop-cli
-        run: brew install r0gue-io/pop-cli/pop
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install r0gue-io/pop-cli/pop
 
       - name: Install dependencies
         run: pop install
+
+      - name: Lint the code
+        run: cargo +nightly fmt --check
 
       - name: Build contract
         run: pop build
