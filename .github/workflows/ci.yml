@@ -1,0 +1,29 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pop-cli
+        run: brew install r0gue-io/pop-cli/pop
+
+      - name: Install dependencies
+        run: pop install
+
+      - name: Build contract
+        run: pop build
+
+      - name: Run unit tests
+        run: pop test
+
+      - name: Run end-to-end tests
+        run: pop test --e2e -y
